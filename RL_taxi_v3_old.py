@@ -10,57 +10,45 @@ import gymnasium as gym
 from gymnasium.wrappers import TimeLimit    #to prevent episode ending at 200 steps
 
 # from IPython.display import clear_output
-import os 
+import os
 import time
 import numpy as np
 import random 
 import cv2
 
-## Create and initialize environment
-env = gym.make("Taxi-v3", render_mode="rgb_array")           #text-based rendering in terminal
-env = TimeLimit(env.unwrapped, max_episode_steps=3000)       #prevent timeout at 200 steps
+# Create and initialize environment
+env = gym.make("Taxi-v3", render_mode="ansi")           #text-based rendering in terminal
+env = TimeLimit(env.unwrapped, max_episode_steps=3000)
 
 
 ## Randomly initialize env, print State and Action Space.
-initial_state, _ = env.reset()                               #Need to reset first
-env.unwrapped.s = initial_state
+# env.reset()     #Resets the environment and returns a random initial state.
+# print(env.render())
+# print("Action Space {}".format(env.action_space))
+# print("State Space {}".format(env.observation_space))
+
+
+## Render a specific state --> Used for testing 
+state = env.unwrapped.encode(3, 1, 2, 0)  #(taxi row, taxi column, passenger index, destination index)
+print("State:", state)                    #encode(3, 1, 2, 0) is state 328
+env.reset()                               #Need to reset first
+env.unwrapped.s = state
+# print(env.render())                     #print env to terminal
+
 
 ## Reward Table P. {action: [(probability, nextstate, reward, done)]}
 # P = env.unwrapped.P[328] 
 # print(P)
 
-############################################################################
-def save_taxi_episode(frames, epochs, penalties, filename="taxi_video.avi", fps=2.0):
-    # Convert frames to video
-    height, width, _ = frames[0].shape
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(filename, fourcc, fps, (width, height))   #use higher fps for random actions
-    
-    for frame in frames:
-        # OpenCV uses BGR instead of RGB
-        frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        out.write(frame_bgr)
-    
-    out.release()
-    print(f"Video saved as {filename}")
-
-
 
 '''Solve using random action (infinite loop until end of epsiode = drop-off)'''
-print("Solving with random actions ...")
-
-env.reset()                               #Need to reset first
-env.unwrapped.s = initial_state
+env.unwrapped.s = 328   #set environment to illustration's state
 
 epochs = 0
-penalties, reward = 0, 0   #initialize 
+penalties, rewards = 0, 0   #initialize
 
-frames_random = []             #for animation
+frames = []             #for animation
 done = False
-
-# Get the first frame
-frame = env.render()
-frames_random.append(frame)
 
 while not done:         #infinite loop until solved
     action = env.action_space.sample()      #sample() picks a random action
@@ -69,18 +57,35 @@ while not done:         #infinite loop until solved
     
     if reward == -10:       #illegal pickup/drop-off
         penalties += 1
+    
+    # Put each rendered frame into dict for animation
+    frames.append({
+        'frame': env.render(),
+        'state': state,
+        'action': action,
+        'reward': reward
+        })
 
-    # Get frame
-    frame = env.render()
-    frames_random.append(frame)
-        
     epochs += 1
 
-save_taxi_episode(frames_random, epochs, penalties, filename="random_taxi.mp4", fps=60.0)
-
 print("Timesteps taken: {}".format(epochs))
-print("Penalties incurred: {}\n".format(penalties))
-#########################################################################
+print("Penalties incurred: {}".format(penalties))
+
+
+
+## Print frames to terminal for visualization
+def print_frames(frames):
+    for i, frame in enumerate(frames):
+        os.system('clear')              #clear terminal output
+        print(frame['frame'])
+        print(f"Timestep: {i + 1}")
+        print(f"State: {frame['state']}")
+        print(f"Action: {frame['action']}")
+        print(f"Reward: {frame['reward']}")
+        time.sleep(0.1)
+
+
+# print_frames(frames)    #call to print taxi env to terminals
 
 
 '''Implementing Q-Learning to solve with RL - Training the agent'''
@@ -96,11 +101,10 @@ all_epochs = []
 all_penalties = []
 train_start = time.time()
 
-print("Training started ...")
 for i in range(1, 100001):
 
     state, _ = env.reset()
-    epochs, penalties, reward = 0, 0, 0
+    epochs, penalties, rewards = 0, 0, 0
     done = False
 
     while not done:
@@ -124,48 +128,13 @@ for i in range(1, 100001):
         state = next_state
         epochs += 1
     
-    # if i % 100 == 0:
-    #     os.system('clear')              #clear terminal output
-    #     print(f"Episode: {i}")
+    if i % 100 == 0:
+        os.system('clear')              #clear terminal output
+        print(f"Episode: {i}")
 
 train_end = time.time()
 print("Training finished")
-print(f"training time = {train_end - train_start} s\n")
-###########################################################################################
-
-
-
-'''Solving Once with Q-learning'''
-env.reset()                               #Need to reset first
-env.unwrapped.s = initial_state
-
-epochs, penalties, reward = 0, 0, 0   #initialize 
-
-frames_q = []             #for animation
-done = False
-
-# Get the first frame
-frame = env.render()
-frames_q.append(frame)
-
-while not done:
-    action = np.argmax(q_table[state])
-    state, reward, terminated, truncated, _ = env.step(action)
-    done = terminated or truncated
-
-    if reward == -10:
-        penalties += 1
-
-    # Get frame
-    frame = env.render()
-    frames_q.append(frame)
-
-    epochs += 1
-
-save_taxi_episode(frames_q, epochs, penalties, filename="smart_taxi.mp4", fps=2.0)          #MAKES VIDEO
-print("Timesteps taken: {}".format(epochs))
-print("Penalties incurred: {}\n".format(penalties))
-###################################
+print(f"training time = {train_end - train_start}")
 
 
 '''Evaluate the Agent's performance after Q-learning'''
@@ -174,7 +143,7 @@ episodes = 100                          #evaluate on # episodes
 
 for _ in range(episodes):
     state, _ = env.reset()
-    epochs, penalties, reward = 0, 0, 0
+    epochs, penalties, rewards = 0, 0, 0
     done = False
 
     while not done:
@@ -190,7 +159,6 @@ for _ in range(episodes):
     total_penalties += penalties
     total_epochs += epochs
 
-print(f"\nResults after {episodes} episodes:")
+print(f"Results after {episodes} episodes:")
 print(f"Average timesteps per episode: {total_epochs / episodes}")
-print(f"Average penalties per episode: {total_penalties / episodes}\n")
-######################################################################################
+print(f"Average penalties per episode: {total_penalties / episodes}")
