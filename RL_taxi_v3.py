@@ -9,60 +9,69 @@ https://www.learndatasci.com/tutorials/reinforcement-q-learning-scratch-python-o
 import gymnasium as gym
 from gymnasium.wrappers import TimeLimit    #to prevent episode ending at 200 steps
 
-from utils import solve_taxi_problem, train_q_learning
+from utils import solve_taxi_problem, train_q_learning, save_initial_state_png
 
-## Create and initialize environment
-env = gym.make("Taxi-v3", render_mode="rgb_array")           #text-based rendering in terminal
-env = TimeLimit(env.unwrapped, max_episode_steps=3000)       #prevent timeout at 200 steps
-print("\nTaxi v3 environment initialized.\n")
+def run_RL_taxi():
 
-## Randomly initialize env, print State and Action Space.
-initial_state, _ = env.reset()                               #Need to reset first
-env.unwrapped.s = initial_state                              #save initial state to use for both random and q-learning solutions
+    ## Create and initialize environment
+    env = gym.make("Taxi-v3", render_mode="rgb_array")           #text-based rendering in terminal
+    env = TimeLimit(env.unwrapped, max_episode_steps=3000)       #prevent timeout at 200 steps
+    print("\nTaxi v3 environment initialized.\n")
 
-## Reward Table P. {action: [(probability, nextstate, reward, done)]}
-# P = env.unwrapped.P[initial_state]                         #you can print the reward table for any state
+    ## Randomly initialize env, and save frame as png.
+    initial_state, _ = env.reset()                               #Need to reset first
+    env.unwrapped.s = initial_state                              #save initial state to use for both random and q-learning solutions
+    save_initial_state_png(env)    
 
-
-'''
-Solve using random action [infinite loop until end of epsiode (= drop-off)]:
-'''
-print("Solving with random actions ...")
-epochs, penalties = solve_taxi_problem(env, initial_state, q_table=None, vidname="random_taxi.mp4")
-print(f"Timesteps taken: {epochs}")
-print(f"Penalties incurred: {penalties}\n")
+    ## Reward Table P. {action: [(probability, nextstate, reward, done)]}
+    # P = env.unwrapped.P[initial_state]                         #you can print the reward table for any state
 
 
-'''
-Training the agent --> Implementing Q-Learning to solve with RL: 
-'''
-q_table = train_q_learning(env)
+    '''
+    Solve using random action [infinite loop until end of epsiode (= drop-off)]:
+    '''
+    print("Solving with random actions ...")
+    epochs, penalties = solve_taxi_problem(env, initial_state, q_table=None, vidname="random_taxi.mp4")
+    print(f"Timesteps taken: {epochs}")
+    print(f"Penalties incurred: {penalties}\n")
 
 
-'''
-Solving Once with Q-learning: 
-'''
-print("Solving after q-learning ...")
-epochs, penalties = solve_taxi_problem(env, initial_state, q_table=q_table, vidname="smart_taxi.mp4")
-print("Timesteps taken: {}".format(epochs))
-print("Penalties incurred: {}\n".format(penalties))
+    '''
+    Training the agent --> Implementing Q-Learning to solve with RL: 
+    '''
+    q_table = train_q_learning(env)
 
 
-'''
-Evaluate the Agent's performance after Q-learning: 
-'''
-total_epochs, total_penalties = 0, 0   
-episodes = 100                          #evaluate on # episodes
+    '''
+    Solving Once with Q-learning: 
+    '''
+    print("Solving after q-learning ...")
+    epochs, penalties = solve_taxi_problem(env, initial_state, q_table=q_table, vidname="smart_taxi.mp4")
+    print(f"Timesteps taken: {epochs}")
+    print(f"Penalties incurred: {penalties}\n")
 
-print("Evaluating performance after Q-learning")
-for _ in range(episodes):
-    state, _ = env.reset()              #randomizes initial state for each episode 
 
-    epochs, penalties = solve_taxi_problem(env, state, q_table=q_table, save_vid=False)
+    '''
+    Evaluate the Agent's performance after Q-learning: 
+    '''
+    total_epochs, total_penalties = 0, 0   
+    episodes = 100                          #evaluate on # episodes
 
-    total_penalties += penalties
-    total_epochs += epochs
+    print("Evaluating performance after Q-learning")
+    for _ in range(episodes):
+        state, _ = env.reset()              #randomizes initial state for each episode 
 
-print(f"Results after {episodes} episodes:")
-print(f"Average timesteps per episode: {total_epochs / episodes}")
-print(f"Average penalties per episode: {total_penalties / episodes}\n")
+        epochs, penalties = solve_taxi_problem(env, state, q_table=q_table, save_vid=False)
+
+        total_penalties += penalties
+        total_epochs += epochs
+
+    print(f"Results after {episodes} episodes:")
+    print(f"Average timesteps per episode: {total_epochs / episodes}")
+    print(f"Average penalties per episode: {total_penalties / episodes}\n")
+    
+    return
+
+
+if __name__ == "__main__":
+    run_RL_taxi()

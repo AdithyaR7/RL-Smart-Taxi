@@ -13,20 +13,24 @@ def solve_taxi_problem(env, state, q_table=None, vidname="taxi_video.avi", save_
 
     epochs, penalties, reward = 0, 0, 0       #initialize 
 
-    frames_random = []                        #for animation
-    frame = env.render()                      #get and save first frame
-    frames_random.append(frame)
+    frame = env.render()                      #get first frame
+
+    frame_info = {
+        "frames":[frame],                               #frames for animation. Save first frame
+        "epochs":[f"Epochs:  {epochs}"],                 #string for writing on video
+        "penalties":[f"Penalties:{penalties}"]
+    }
 
     done = False                              #record end of episode = successfull drop-off
 
     while not done:                           #infinite loop until solved
 
         if q_table is not None:
-            action = np.argmax(q_table[state])      #use learned actions from q-table (q-learning)
+            action = np.argmax(q_table[state])          #use learned actions from q-table (q-learning)
             fps = 2.0
 
         else:
-            action = env.action_space.sample()      #sample() picks a random action
+            action = env.action_space.sample()          #sample() picks a random action
             fps = 60.0
         
         state, reward, terminated, truncated, _ = env.step(action)
@@ -35,12 +39,14 @@ def solve_taxi_problem(env, state, q_table=None, vidname="taxi_video.avi", save_
         if reward == -10:                      #illegal pickup/drop-off
             penalties += 1
 
-        frame = env.render()                   #get and save frame
-        frames_random.append(frame)
+        frame = env.render()                             #get and save frame, epoch & penalty string
+        frame_info["frames"].append(frame)
+        frame_info["epochs"].append(f"Epochs:  {epochs}")
+        frame_info["penalties"].append(f"Penalties:{penalties}")
             
         epochs += 1
 
-    record_taxi_episode(frames_random, epochs, penalties, filename=vidname, fps=fps, save=save_vid)
+    record_taxi_episode(frame_info, filename=vidname, fps=fps, save=save_vid)
     
     return epochs, penalties
 
@@ -94,7 +100,12 @@ def train_q_learning(env):
     return q_table
 
 
-def record_taxi_episode(frames, epochs, penalties, filename="taxi_video.avi", fps=2.0, save=True):
+def record_taxi_episode(frame_info, filename="taxi_video.avi", fps=2.0, save=True):
+
+    #extract lists from frame_info dict
+    frames = frame_info["frames"]
+    epochs = frame_info["epochs"]
+    penalties = frame_info["penalties"]
 
     # Convert frames to video
     if save==True:
@@ -102,10 +113,35 @@ def record_taxi_episode(frames, epochs, penalties, filename="taxi_video.avi", fp
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(filename, fourcc, fps, (width, height))   #use higher fps for random actions
         
-        for frame in frames:
+        for frame, epoch_str, penalties_str in zip(frames, epochs, penalties):
             frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)          #OpenCV uses BGR instead of RGB
-            out.write(frame_bgr)
         
+            # Add overlay text to the frame
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale = 0.5
+            color = (255, 255, 255)
+            thickness = 1
+
+            cv2.putText(frame_bgr, epoch_str,     (101,55), font, font_scale, color, thickness)
+            cv2.putText(frame_bgr, penalties_str, (101,72), font, font_scale, color, thickness)
+
+            out.write(frame_bgr)                                        #write to frame
+
         out.release()
         print(f"Video saved as {filename}")
+        
+    return
 
+
+def save_initial_state_png(env):
+
+    # Render the current frame
+    frame = env.render()
+    
+    # Convert the frame to BGR (required for OpenCV)
+    frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    
+    # Save the frame as an image
+    cv2.imwrite("initial_state.png", frame_bgr)
+
+    return
