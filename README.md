@@ -17,8 +17,8 @@ At any state, there are 6 possible actions for the taxi (agent): North, East, So
 
 Random Taxi - here is the taxi environment being solved by picking a random action at every state. This can be solved in anywhere between a few to 300+ epochs, depending on how 'lucky' the actions turn out:
 
-<video width="320" height="240" controls>
-  <source src="path/to/your-video.mp4" type="video/mp4">
+<video width="320" controls>
+  <source src="https://github.com/AdithyaR7/RL-Smart-Taxi/raw/refs/heads/main/taxi_sol_vids/random_taxi.mp4">
   Your browser does not support the video tag.
 </video>
 
