@@ -28,21 +28,24 @@ In any state, there are 6 possible actions for the taxi (agent): North, East, So
 # Installation and Running the Code
 
 This program was made using Python 3.10.16 in a Conda environment:
-'''bash
+```bash
 conda create --name RL_Taxi python=3.10
-'''
+```
 
 Use pip and requirements.txt to install the required packages:
-'''bash
+```bash
 pip install requirements.txt
-'''
+
+```
 
 Run the code:
-'''bash
+```bash
 python RL_Taxi_v3.py
-'''
+```
 
 This prints the relevant information to the terminal during the different sections of the code, and also saves the solutions of the random and smart taxi to video as .mp4 files.
+
+
 
 
 # Acknowledgements
