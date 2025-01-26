@@ -17,15 +17,15 @@ At any state, there are 6 possible actions for the taxi (agent): North, East, So
 
 Random Taxi - here is the taxi environment being solved by picking a random action at every state. This can be solved in anywhere between a few to 300+ epochs, depending on how 'lucky' the actions turn out:
 
-<video width="320" controls>
-  <source src="https://github.com/AdithyaR7/RL-Smart-Taxi/raw/refs/heads/main/taxi_sol_vids/random_taxi.mp4">
-  Your browser does not support the video tag.
-</video>
 
 Smart Taxi - here is the agent efficiently carrying out moves to solve the problem in the most optimum way after Q-learning:
 
+<img src="https://github.com/AdithyaR7/RL-Smart-Taxi/blob/main/taxi_sol_vids/smart_taxi.gif" width="700" />
+
+<!--
 <a href="https://www.youtube.com/watch?v=3sxugf6BZaI">
     <img src="https://img.youtube.com/vi/3sxugf6BZaI/0.jpg" width="320">
 </a>
 
 <video src="taxi_sol_vids/smart_taxi.mp4" width="700" />
+-->
