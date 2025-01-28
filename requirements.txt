@@ -1,0 +1,6 @@
+cmake==3.31.2
+gymnasium==1.0.0
+# numpy==2.2.1
+opencv-python
+pygame==2.1.0
+scipy==1.15.0
