@@ -25,7 +25,7 @@ In any state, there are 6 possible actions for the taxi (agent): North, East, So
 <img src="https://github.com/AdithyaR7/RL-Smart-Taxi/blob/main/taxi_sol_vids/smart_taxi.gif" width="600" />
 
 
-# Installation and Running the Code
+# Installation
 
 This program was made using Python 3.10.16 in a Conda environment:
 ```bash
@@ -57,6 +57,7 @@ then run the following to fix this:
 conda install -c conda-forge libstdcxx-ng
 ```
 
+# Running the Code
 
 Run the python code:
 ```bash
