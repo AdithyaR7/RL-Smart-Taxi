@@ -38,7 +38,27 @@ pip install -r requirements.txt
 
 ```
 
-Run the code:
+Errors - If you encounter the error message below:
+```
+libGL error: MESA-LOADER: failed to open iris: /usr/lib/dri/iris_dri.so: cannot open shared object file: No such file or directory (search paths /usr/lib/x86_64-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri, suffix _dri)
+libGL error: failed to load driver: iris
+libGL error: MESA-LOADER: failed to open swrast: /usr/lib/dri/swrast_dri.so: cannot open shared object file: No such file or directory (search paths /usr/lib/x86_64-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri, suffix _dri)
+libGL error: failed to load driver: swrast
+X Error of failed request:  BadValue (integer parameter out of range for operation)
+  Major opcode of failed request:  149 (GLX)
+  Minor opcode of failed request:  3 (X_GLXCreateContext)
+  Value in failed request:  0x0
+  Serial number of failed request:  102
+  Current serial number in output stream:  103
+```
+
+then run the following to fix this:
+```bash
+conda install -c conda-forge libstdcxx-ng
+```
+
+
+Run the python code:
 ```bash
 python RL_Taxi_v3.py
 ```
@@ -55,3 +75,5 @@ This code was largely adapted from an article from learndatasci.com and updated 
 --> https://www.learndatasci.com/tutorials/reinforcement-q-learning-scratch-python-openai-gym/ 
 
 --> https://www.gymlibrary.dev/environments/toy_text/taxi/
+
+--> https://stackoverflow.com/questions/72110384/libgl-error-mesa-loader-failed-to-open-iris 
