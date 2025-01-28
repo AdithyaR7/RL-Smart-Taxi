@@ -34,7 +34,7 @@ conda create --name RL_Taxi python=3.10
 
 Use pip and requirements.txt to install the required packages:
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 
 ```
 
