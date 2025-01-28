@@ -50,3 +50,8 @@ This prints the relevant information to the terminal during the different sectio
 
 # Acknowledgements
 
+This code was largely adapted from an article from learndatasci.com and updated to use v3 of the Taxi environment instead of the now deprecated v2.
+
+--> https://www.learndatasci.com/tutorials/reinforcement-q-learning-scratch-python-openai-gym/ 
+
+--> https://www.gymlibrary.dev/environments/toy_text/taxi/
